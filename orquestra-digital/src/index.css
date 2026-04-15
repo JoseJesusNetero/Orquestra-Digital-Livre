@@ -1,0 +1,23 @@
+body {
+  margin: 0;
+  background: radial-gradient(circle, #0a0a0a 0%, #001f3f 100%); /* Preto pro Marinho */
+  color: white;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+.main-container {
+  display: flex;
+  width: 100vw;
+  height: 80vh;
+  border: 1px solid rgba(0, 255, 255, 0.1); /* Neon sutil */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.side {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
