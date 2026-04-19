@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Header } from './components/Header';
+// IMPORTANTE: Verifique se os nomes dos arquivos na pasta 'components' estão idênticos a estes
+import { Header } from './components/Header.tsx';
 import { Visualizer } from './components/Visualizer';
-import { Instrument } from './components/Instrument';
-import { AudioVisualizer } from './components/AudioVisualizer';
-import { useAudioAnalyzer } from './hooks/useAudioAnalyzer';
-import { fetchImages } from './services/imageService';
+import { Instrument } from './components/Instrument.tsx';
+import { AudioVisualizer } from './components/AudioVisualizer.tsx';
+import { useAudioAnalyzer } from './hooks/useAudioAnalizer.tsx';
+import { fetchImages } from './services/imageService.ts';
 
-// URLs de ícones (Podem ser trocados por arquivos locais na pasta assets)
 const ICONS = {
   bateria: "https://cdn-icons-png.flaticon.com/512/1703/1703277.png",
   guitarra: "https://cdn-icons-png.flaticon.com/512/2905/2905103.png",
@@ -19,7 +19,7 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
   
-  // URL de exemplo (Trilha de aventura épica)
+  // URL de trilha épica para teste
   const audioUrl = "https://mp3l.jamendo.com/?trackid=1890835&format=mp31&from=app-97b28c9a";
   
   // Hook de análise de áudio
@@ -27,98 +27,54 @@ export default function App() {
 
   const handleSearch = async () => {
     if (!search) return;
-    const results = await fetchImages(search);
-    setPhotos(results);
+    try {
+      const results = await fetchImages(search);
+      setPhotos(results);
+    } catch (err) {
+      console.error("Erro na busca:", err);
+    }
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: 'radial-gradient(circle, #0a0a0a 0%, #001f3f 100%)', color: 'white' }}>
       <Header />
 
-      {/* Barra de Pesquisa */}
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
         <input 
           type="text" 
           placeholder="Ex: Red Dead Redemption 2"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ 
-            padding: '12px', borderRadius: '8px 0 0 8px', border: '1px solid #D4AF37',
-            width: '350px', background: '#111', color: 'white' 
-          }}
+          style={{ padding: '12px', borderRadius: '8px 0 0 8px', border: '1px solid #D4AF37', width: '300px', background: '#111', color: 'white' }}
         />
         <button 
           onClick={handleSearch}
-          style={{ 
-            padding: '12px 25px', borderRadius: '0 8px 8px 0', border: 'none', 
-            background: '#D4AF37', color: 'black', fontWeight: 'bold', cursor: 'pointer' 
-          }}
+          style={{ padding: '12px 20px', borderRadius: '0 8px 8px 0', border: 'none', background: '#D4AF37', color: 'black', fontWeight: 'bold', cursor: 'pointer' }}
         >
-          INVOCAR IMAGENS
+          Sincronizar
         </button>
       </div>
 
-      {/* Container Principal (Dividido em 2) */}
-      <div className="main-container" style={{ display: 'flex', flex: 1, gap: '30px', padding: '0 40px' }}>
-        
-        {/* LADO ESQUERDO: SLIDESHOW */}
+      <div style={{ display: 'flex', gap: '30px', padding: '0 40px' }}>
+        {/* LADO ESQUERDO */}
         <div style={{ flex: 1 }}>
           <Visualizer photos={photos} />
         </div>
 
-        {/* LADO DIREITO: ORQUESTRA */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          
-          <Instrument 
-            name="Bateria" 
-            img={ICONS.bateria} 
-            isActive={intensities.low > 160} 
-            notes={['BUM', 'CAI', 'XIS', 'PRT']} 
-          />
-          <Instrument 
-            name="Guitarra" 
-            img={ICONS.guitarra} 
-            isActive={intensities.mid > 150} 
-            notes={['MI', 'LA', 'RE', 'SOL']} 
-          />
-          <Instrument 
-            name="Saxophone" 
-            img={ICONS.sax} 
-            isActive={intensities.mid > 120 && intensities.mid < 150} 
-            notes={['SOL', 'LA', 'SI', 'DO']} 
-          />
-          <Instrument 
-            name="Violão" 
-            img={ICONS.violao} 
-            isActive={intensities.mid > 80 && intensities.mid < 120} 
-            notes={['RE', 'FA#', 'LA', 'RE']} 
-          />
-          <Instrument 
-            name="Flauta" 
-            img={ICONS.flauta} 
-            isActive={intensities.high > 140} 
-            notes={['DO', 'RE', 'MI', 'FA']} 
-          />
+        {/* LADO DIREITO */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <Instrument name="Bateria" img={ICONS.bateria} isActive={intensities.low > 150} notes={['BUM', 'CAI', 'PRT']} />
+          <Instrument name="Guitarra" img={ICONS.guitarra} isActive={intensities.mid > 140} notes={['MI', 'LA', 'SOL']} />
+          <Instrument name="Violão" img={ICONS.violao} isActive={intensities.mid > 90 && intensities.mid < 140} notes={['RE', 'FA#', 'LA']} />
+          <Instrument name="Flauta" img={ICONS.flauta} isActive={intensities.high > 130} notes={['DO', 'RE', 'MI']} />
 
-          {/* Player e Visualizador Gráfico */}
-          <div style={{ marginTop: 'auto', padding: '20px', textAlign: 'center' }}>
-            <AudioVisualizer analyzer={null} /> {/* O analyzerRef pode ser passado aqui */}
-            <br />
-            <audio 
-              ref={audioRef} 
-              src={audioUrl} 
-              controls 
-              onPlay={initAudio}
-              style={{ filter: 'invert(1) hue-rotate(180deg)', marginTop: '10px' }} 
-            />
+          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+             <AudioVisualizer analyzer={null} />
+             <br />
+             <audio ref={audioRef} src={audioUrl} controls onPlay={initAudio} style={{ marginTop: '10px', filter: 'invert(1)' }} />
           </div>
         </div>
-
       </div>
-      
-      <footer style={{ textAlign: 'center', padding: '20px', color: '#555', fontSize: '0.8rem' }}>
-        &copy; 2026 Orquestra Digital Livre - Projeto Full Stack
-      </footer>
     </div>
   );
 }
